@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 
 import { Button, Input, Space, Table } from 'antd';
-import { QrcodeOutlined, SearchOutlined, SendOutlined } from '@ant-design/icons';
+import { SearchOutlined, SendOutlined } from '@ant-design/icons';
 
 import dateFormatter, { DATE_FORMAT } from 'src/app/helper/format/date';
 
@@ -24,7 +24,6 @@ const Product: React.FC<{
     isLoading,
     isActionDisabled,
     onClickDetail,
-    onClickDeliver,
     onClickPackage,
     onChange,
 }) => {
@@ -151,23 +150,17 @@ const Product: React.FC<{
                     width: '100px',
                 },
                 {
-                    title: 'Action',
+                    title: '',
                     key: 'action',
-                    width: '80px',
+                    width: '40px',
                     fixed: 'right' as any,
                     render: (_: string, record: OrderListItem) => (
                         <Space>
                             <Button
                                 type='link'
                                 disabled={!!record.fullyScheduledAt}
-                                onClick={() => onClickDeliver && onClickDeliver(record)}
-                                icon={<SendOutlined />}
-                            />
-                            <Button
-                                type='link'
-                                disabled={!!record.fullyScheduledAt}
                                 onClick={() => onClickPackage && onClickPackage(record)}
-                                icon={<QrcodeOutlined />}
+                                icon={<SendOutlined />}
                             />
                         </Space>
                     ),

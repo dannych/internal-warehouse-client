@@ -29,12 +29,12 @@ export default () => {
         get: deliveryReadOne,
         abort: deliveryReadOneAbort,
     } = useApi('/shipping-deliveries');
-    const { loading: deliveryCreateOneScanIsLoading, post: deliveryCreateOneScan } = useApi(
-        '/shipping-deliveries'
-    );
-    const { loading: deliveryCreateOneConfirmIsLoading, post: deliveryCreateOneConfirm } = useApi(
-        '/shipping-deliveries'
-    );
+    const { loading: deliveryCreateOneScanIsLoading, post: deliveryCreateOneScan } =
+        useApi('/shipping-deliveries');
+    const { loading: deliveryCreateOneConfirmIsLoading, post: deliveryCreateOneConfirm } =
+        useApi('/shipping-deliveries');
+    const { loading: deliveryCreateOneCancelIsLoading, post: deliveryCreateOneCancel } =
+        useApi('/shipping-deliveries');
 
     const [deliveryDetailData, deliveryDetailSetData] = useState<DeliveryListItem | void>(
         undefined
@@ -52,6 +52,10 @@ export default () => {
     const [deliveryConfirmForm] = Form.useForm();
     const [deliveryConfirmFormPayload, deliveryConfirmFormSetPayload] = useState<any>();
     const [deliveryConfirmFormIsVisible, deliveryConfirmFormSetIsVisible] = useState<boolean>();
+
+    const [deliveryCancelForm] = Form.useForm();
+    const [deliveryCancelFormPayload, deliveryCancelFormSetPayload] = useState<any>();
+    const [deliveryCancelFormIsVisible, deliveryCancelFormSetIsVisible] = useState<boolean>();
 
     const productsValue = (deliveryScanForm.getFieldValue('products') || []) as any[];
     const [serialable, setSerialable] = useState<{ [x: string]: boolean }>(
@@ -135,6 +139,20 @@ export default () => {
             deliveryConfirmFormSetIsVisible(true);
         },
         [deliveryConfirmForm]
+    );
+
+    const onDeliveryTableCancelClick = useCallback(
+        (listItem: DeliveryListItem) => {
+            deliveryCancelFormSetPayload(listItem);
+            deliveryCancelForm.setFieldsValue({
+                _id: listItem._id,
+                referencePostId: listItem.orderPriorPostId,
+                referencePaperId: listItem.orderPriorPaperId,
+                createdAt: date(listItem.createdAt),
+            });
+            deliveryCancelFormSetIsVisible(true);
+        },
+        [deliveryCancelForm]
     );
 
     // delivery scan
@@ -416,19 +434,6 @@ export default () => {
                           quantity: product.quantity,
                       }),
             })),
-            sourcingProducts: deliveryScanFormReviewPayload.sourcedProducts.map((product: any) => ({
-                deliveryProductSid: product.deliveryProductSid,
-                sourcingProductSid: product.sourcingProductSid,
-                ...(product.serialable
-                    ? {
-                          sns: product.sns,
-                          quantity: product.quantity,
-                      }
-                    : {
-                          lot: product.lots,
-                          quantity: product.quantity,
-                      }),
-            })),
             extraProducts: deliveryScanFormReviewPayload.extraProducts.map((product: any) => ({
                 deliveryProductSid: product.deliveryProductSid,
                 ...(product.serialable
@@ -499,6 +504,30 @@ export default () => {
         [deliveryCreateOneConfirm, orderReadManyWithCurrentQuery, deliveryReadManyCache]
     );
 
+    // Cancel
+
+    const onDeliveryCancelFormHide = useCallback(() => {
+        deliveryCancelFormSetIsVisible(false);
+    }, []);
+
+    const onDeliveryCancelFormInputSubmit = useCallback(() => {
+        deliveryCancelForm.submit();
+    }, [deliveryCancelForm]);
+
+    const onDeliveryCancelFormInputFinish = useCallback(
+        (values: any) => {
+            deliveryCreateOneCancel(`${values._id}/cancel`, {
+                createdAt: values.createdAt,
+            }).then((payload) => {
+                if (!payload || payload.error) return;
+                deliveryCancelFormSetIsVisible(false);
+                deliveryReadManyCache.clear();
+                orderReadManyWithCurrentQuery();
+            });
+        },
+        [deliveryCreateOneCancel, orderReadManyWithCurrentQuery, deliveryReadManyCache]
+    );
+
     useEffect(() => {
         orderReadManyWithCurrentQuery();
     }, [orderReadManyWithCurrentQuery]);
@@ -521,15 +550,20 @@ export default () => {
         deliveryScanFormInputIsLoading: false,
         deliveryScanFormInputIsDisabled: deliveryReadOneIsLoading,
         deliveryScanFormReviewIsLoading: deliveryCreateOneScanIsLoading,
+        deliveryScanFormReviewPayload,
         deliveryConfirmForm,
         deliveryConfirmFormPayload,
         deliveryConfirmFormIsVisible,
         deliveryConfirmFormIsLoading: deliveryCreateOneConfirmIsLoading,
-        deliveryScanFormReviewPayload,
+        deliveryCancelForm,
+        deliveryCancelFormPayload,
+        deliveryCancelFormIsVisible,
+        deliveryCancelFormIsLoading: deliveryCreateOneCancelIsLoading,
         onDeliveryTableRefresh,
         onDeliveryTableSearch,
         onDeliveryTableDetailClick,
         onDeliveryTableConfirmClick,
+        onDeliveryTableCancelClick,
         onDeliveryTableScanClick,
         onDeliveryDetailHide,
         onDeliveryScanFormHide,
@@ -544,5 +578,8 @@ export default () => {
         onDeliveryConfirmFormHide,
         onDeliveryConfirmFormInputSubmit,
         onDeliveryConfirmFormInputFinish,
+        onDeliveryCancelFormHide,
+        onDeliveryCancelFormInputSubmit,
+        onDeliveryCancelFormInputFinish,
     };
 };

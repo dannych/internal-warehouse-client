@@ -7,6 +7,7 @@ import PageBreadcrumb from 'src/app/component/page-breadcrumb.component';
 
 import DeliveryDetail from './delivery.detail';
 import DeliveryConfirmForm from './delivery.form.confirm';
+import DeliveryCancelForm from './delivery.form.cancel';
 import DeliveryScanFormCreate from './delivery.form.scan';
 import DeliveryScanFormReview from './delivery.form.review';
 import pageheader from './delivery.pageheader';
@@ -37,11 +38,16 @@ const DeliveryPage = () => {
         deliveryConfirmFormPayload,
         deliveryConfirmFormIsVisible,
         deliveryConfirmFormIsLoading,
+        deliveryCancelForm,
+        deliveryCancelFormPayload,
+        deliveryCancelFormIsVisible,
+        deliveryCancelFormIsLoading,
         onDeliveryTableSearch,
         onDeliveryTableRefresh,
         onDeliveryTableDetailClick,
         onDeliveryTableScanClick,
         onDeliveryTableConfirmClick,
+        onDeliveryTableCancelClick,
         onDeliveryDetailHide,
         onDeliveryScanFormHide,
         onDeliveryScanFormSerialableChange,
@@ -55,6 +61,9 @@ const DeliveryPage = () => {
         onDeliveryConfirmFormHide,
         onDeliveryConfirmFormInputFinish,
         onDeliveryConfirmFormInputSubmit,
+        onDeliveryCancelFormHide,
+        onDeliveryCancelFormInputFinish,
+        onDeliveryCancelFormInputSubmit,
     } = usePresenter();
 
     return (
@@ -79,6 +88,7 @@ const DeliveryPage = () => {
                         onClickDetail={onDeliveryTableDetailClick}
                         onClickScan={onDeliveryTableScanClick}
                         onClickConfirm={onDeliveryTableConfirmClick}
+                        onClickCancel={onDeliveryTableCancelClick}
                     />
                 </Space>
             </div>
@@ -234,6 +244,36 @@ const DeliveryPage = () => {
                     payload={deliveryConfirmFormPayload}
                     isLoading={deliveryConfirmFormIsLoading}
                     onFinish={onDeliveryConfirmFormInputFinish}
+                />
+            </Drawer>
+
+            <Drawer
+                width='65vw'
+                visible={deliveryCancelFormIsVisible}
+                title='Delivery Confirmation'
+                onClose={onDeliveryCancelFormHide}
+                footer={
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Space>
+                            <Button
+                                size='small'
+                                onClick={onDeliveryCancelFormInputSubmit}
+                                type='primary'
+                                disabled={deliveryCancelFormIsLoading}
+                                loading={deliveryCancelFormIsLoading}
+                            >
+                                Confirm
+                            </Button>
+                        </Space>
+                    </div>
+                }
+            >
+                <DeliveryCancelForm
+                    name='deliveryCancel'
+                    form={deliveryCancelForm}
+                    payload={deliveryCancelFormPayload}
+                    isLoading={deliveryCancelFormIsLoading}
+                    onFinish={onDeliveryCancelFormInputFinish}
                 />
             </Drawer>
         </div>

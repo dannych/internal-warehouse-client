@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 
-import { Button, Divider, Input, Space, Table } from 'antd';
-import { CheckOutlined, QrcodeOutlined, SearchOutlined, SendOutlined } from '@ant-design/icons';
+import { Button, Input, Popconfirm, Space, Table } from 'antd';
+import { CheckOutlined, CloseOutlined, SearchOutlined } from '@ant-design/icons';
 
 import dateFormatter, { DATE_FORMAT } from 'src/app/helper/format/date';
 
@@ -16,6 +16,7 @@ const Product: React.FC<{
     onClickDetail?: (data: DeliveryListItem) => void;
     onClickScan?: (data: DeliveryListItem) => void;
     onClickConfirm?: (data: DeliveryListItem) => void;
+    onClickCancel?: (data: DeliveryListItem) => void;
     onChange?: (pagination: any, query: { [x: string]: any }) => void;
     onPaginationChange?: (a: any) => void;
 }> = ({
@@ -26,6 +27,7 @@ const Product: React.FC<{
     onClickDetail,
     onClickScan,
     onClickConfirm,
+    onClickCancel,
     onChange,
 }) => {
     const searchInput = useRef<any>();
@@ -154,29 +156,27 @@ const Product: React.FC<{
                 {
                     title: 'Action',
                     key: 'action',
-                    width: '160px',
+                    width: '80px',
                     fixed: 'right' as any,
                     render: (_: string, record: DeliveryListItem) => (
                         <Space>
-                            <Button
-                                type='link'
-                                disabled={!!record.packagedAt || !!record.receivedAt}
-                                onClick={() => onClickScan && onClickScan(record)}
-                                icon={<SendOutlined />}
-                            />
-                            <Divider type='vertical' />
-                            <Button
-                                type='link'
-                                disabled={!record.receivedAt || !!record.packagedAt}
-                                onClick={() => onClickScan && onClickScan(record)}
-                                icon={<QrcodeOutlined />}
-                            />
                             <Button
                                 type='link'
                                 disabled={!!record.receivedAt || !record.packagedAt}
                                 onClick={() => onClickConfirm && onClickConfirm(record)}
                                 icon={<CheckOutlined />}
                             />
+                            <Popconfirm
+                                title='Cancel?'
+                                onConfirm={() => onClickCancel && onClickCancel(record)}
+                            >
+                                <Button
+                                    type='link'
+                                    style={{ color: '#ffa39e' }}
+                                    disabled={!!record.receivedAt || !record.packagedAt}
+                                    icon={<CloseOutlined />}
+                                />
+                            </Popconfirm>
                         </Space>
                     ),
                 },
