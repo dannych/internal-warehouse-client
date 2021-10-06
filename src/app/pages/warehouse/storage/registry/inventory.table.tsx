@@ -115,9 +115,9 @@ const CustomerTable: React.FC<{
                     ),
                 },
                 {
-                    title: 'T',
+                    title: 'Type',
                     dataIndex: 'type',
-                    width: '50px',
+                    width: '100px',
                     filters: [
                         { value: 'in', text: 'in' },
                         { value: 'out', text: 'out' },

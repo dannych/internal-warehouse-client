@@ -119,6 +119,11 @@ const CustomerTable: React.FC<{
                     width: '50px',
                 },
                 {
+                    title: 'Stage',
+                    dataIndex: 'unsettledWithdrawal',
+                    width: '100px',
+                },
+                {
                     title: 'Name',
                     dataIndex: 'productName',
                     render: (text) => text || '-',
