@@ -40,6 +40,10 @@ const OrderDetail: React.FC<{ payload: ReadManyItems; meta: any; metaIsLoading?:
                         title: 'Stock',
                         dataIndex: 'productStock',
                     },
+                    {
+                        title: 'Supplier',
+                        dataIndex: ['process', '0', 'supplierName'],
+                    },
                 ]}
                 expandable={{
                     rowExpandable: () => true,
