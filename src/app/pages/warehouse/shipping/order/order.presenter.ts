@@ -240,7 +240,11 @@ export default () => {
 
             const products = values.products
                 .filter(
-                    (product: any) => !!product && (!!product.productSns || !!product.productLot)
+                    (product: any) =>
+                        !!product &&
+                        (!!product.productSns ||
+                            !!product.productLot ||
+                            !!product.productLotSecondary)
                 )
                 .map((product: any) => {
                     const sns = (product.productSns || '')
@@ -252,7 +256,16 @@ export default () => {
                     const lots = (product.productLot || '')
                         .trim()
                         .split('\n')
-                        .map((x: string) => x.trim());
+                        .map((x: string) => x.trim())
+                        .filter((x: string) => !!x);
+                    const lotsSecondary = product.productLotSecondary
+                        ? product.productLotSecondary.map(
+                              (product: { lot: string; quantity: number }) => ({
+                                  lot: product.lot.trim(),
+                                  quantity: product.quantity,
+                              })
+                          )
+                        : [];
                     const lotCount = lots.reduce(
                         (result: any, lot: string) => ({
                             ...result,
@@ -260,15 +273,29 @@ export default () => {
                         }),
                         {}
                     );
-                    const lotFinal = Object.keys(lotCount).map((key) => ({
+                    const lotCountWithSecondary = lotsSecondary.reduce(
+                        (result: any, lot: any) => ({
+                            ...result,
+                            [lot.lot]: (result[lot.lot] || 0) + lot.quantity,
+                        }),
+                        lotCount
+                    );
+
+                    const lotFinal = Object.keys(lotCountWithSecondary).map((key) => ({
                         lot: key,
-                        quantity: lotCount[key],
+                        quantity: lotCountWithSecondary[key],
                     }));
+
+                    const lotFinalCount = Object.keys(lotCountWithSecondary).reduce(
+                        (sum, key) => sum + lotCountWithSecondary[key],
+                        0
+                    );
+
                     const quantityRemaining = orderProductCounts[product.deliveryProductSid];
 
                     const hasId = !!orderProductCounts[product.deliveryProductSid];
                     const serialable = product.productSerialable !== false;
-                    const length = serialable ? sns.length : lots.length;
+                    const length = serialable ? sns.length : lotFinalCount;
                     const hasLimit = length <= quantityRemaining;
                     return {
                         deliveryProductSid: product.deliveryProductSid,

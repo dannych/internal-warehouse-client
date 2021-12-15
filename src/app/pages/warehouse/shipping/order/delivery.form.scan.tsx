@@ -15,6 +15,8 @@ import {
     Tabs,
 } from 'antd';
 
+import { TextCounter } from 'src/app/container/form/text-counter.component';
+
 const ConfigureCreateForm: React.FC<{
     form?: any;
     name: string;
@@ -110,6 +112,7 @@ const ConfigureCreateForm: React.FC<{
                     return (
                         <Tabs.TabPane key={i} tab={`Order #${i + 1}`}>
                             <ProductFulfillmentField
+                                form={form}
                                 index={i}
                                 product={product}
                                 name={['products', i]}
@@ -144,13 +147,14 @@ const ConfigureCreateForm: React.FC<{
 };
 
 const ProductFulfillmentField: React.FC<{
+    form: any;
     name: any[];
     product: any;
     index: number;
     isDisabled?: boolean;
     isSerialable?: boolean;
     onSerialableChange?: (name: string, value: boolean) => void;
-}> = ({ name, product, index, isDisabled, isSerialable, onSerialableChange }) => {
+}> = ({ form, name, product, index, isDisabled, isSerialable, onSerialableChange }) => {
     isSerialable = isSerialable !== false;
     const STRUCTURE = {
         deliveryProductSid: {
@@ -166,6 +170,10 @@ const ProductFulfillmentField: React.FC<{
         },
         productLot: {
             dataIndex: 'productLot',
+            placeholder: 'Lot number',
+        },
+        productLotSecondary: {
+            dataIndex: 'productLotSecondary',
             placeholder: 'Lot number',
         },
         productId: {
@@ -228,6 +236,11 @@ const ProductFulfillmentField: React.FC<{
                             placeholder={STRUCTURE.productLot.placeholder}
                         />
                     </Form.Item>
+                    <TextCounter
+                        hidden={isSerialable}
+                        name={[...name, STRUCTURE.productLotSecondary.dataIndex]}
+                        rules={[]}
+                    />
                 </Col>
                 <Col>
                     <Form.Item
